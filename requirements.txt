@@ -1,2 +1,1 @@
-langchain==0.0.279
 SQLAlchemy==2.0.20
