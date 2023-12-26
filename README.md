@@ -12,8 +12,11 @@ If you like this plugin, please show appreciacion by giving a star to the reposi
 
 ## Usage
 
-1. Install the plugin
-2. Enjoy
+1. Install the plugin BEFORE ingesting any document: Dietician tracks document ingestion only if activated 
+2. Ingest documents
+
+## Notice
+If you wipe the declarative memory remember to delete the dietician.db inside the directory plugin (es. core/cat/plugins/dietician.db)
 
 ## Under the hood
 
