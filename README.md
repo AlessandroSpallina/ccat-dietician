@@ -2,6 +2,7 @@
 
 [![Awesome plugin](https://custom-icon-badges.demolab.com/static/v1?label=&message=Awesome+plugin&color=000000&style=for-the-badge&logo=cheshire_cat_ai)](https://github.com/cheshire-cat-ai/awesome-plugins)  
 
+![fat cat](./img/fat_cat_2.jpg)
 
 This plugin hooks into the `RabbitHole` to prevend multiple ingestions of the same document.
 
