@@ -1,7 +1,7 @@
 {
     "name": "Dietician",
-    "version": "0.2.0",
-    "description": "Preventing CheshireCatAI to ingest the same file multiple times.",
+    "version": "0.2.1",
+    "description": "Prevent multiple unnecessary ingestions of the same file if it's unchanged. Support declarative memory update when a document changes; simply re-upload the document. Dietician is your friend!",
     "author_name": "Alessandro Spallina",
     "author_url": "https://www.linkedin.com/in/alessandro-spallina/",
     "plugin_url": "https://github.com/AlessandroSpallina/ccat-dietician",
