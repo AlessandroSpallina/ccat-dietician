@@ -1,6 +1,6 @@
 {
     "name": "Dietician",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "description": "Prevent multiple unnecessary ingestions of the same file if it's unchanged. Support declarative memory update when a document changes; simply re-upload the document. Dietician is your friend!",
     "author_name": "Alessandro Spallina",
     "author_url": "https://www.linkedin.com/in/alessandro-spallina/",
