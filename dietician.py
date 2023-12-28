@@ -1,24 +1,15 @@
-import sqlite3
-import os
 import hashlib
 from typing import List
 from cat.log import log
-from cat.mad_hatter.decorators import tool, hook
-from langchain.indexes import SQLRecordManager, index
+from cat.mad_hatter.decorators import hook, plugin
+from pydantic import BaseModel, Field
 from langchain.docstore.document import Document
-from langchain.vectorstores import Qdrant
-from cat.mad_hatter.decorators import hook
+from sqlalchemy import ForeignKey, String, create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 
-from typing import List
-from typing import Optional
-from sqlalchemy import ForeignKey, MetaData
-from sqlalchemy import String
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+
+# sqlalchemy sqlite engine
+engine = None
 
 
 class Base(DeclarativeBase):
@@ -50,9 +41,26 @@ class Chunk(Base):
         return f'Chunk(chunk_count={self.chunk_count!r})'
 
 
-engine = create_engine(f"sqlite:///cat/plugins/ccat-dietician/dietician.db")
+class PluginSettings(BaseModel):
+    sqlite_db_path: str = Field(
+        default="sqlite:///cat/data/dietician.db",
+        title="Sqlite filepath. Change it only if you know what you are doing and if so, then always reboot the cat otherwise the old file will be used.",
+    )
 
-Base.metadata.create_all(engine, checkfirst=True)
+
+@plugin
+def settings_model():
+    return PluginSettings
+
+
+@hook(priority=10)
+def after_cat_bootstrap(cat):
+    global engine
+
+    db_filepath = cat.mad_hatter.get_plugin().load_settings()["sqlite_db_path"]
+    log.warning(f"Dietician is using a sqlite file located here: {db_filepath}. You can change the path in the plugin settings, after that remember to reboot the cat!")
+    engine = create_engine(db_filepath)
+    Base.metadata.create_all(engine, checkfirst=True)
 
 
 @hook(priority=10)
@@ -66,14 +74,9 @@ def before_rabbithole_splits_text(doc, cat):
     return doc
 
 
-# Hook called when a list of Document is going to be inserted in memory from the rabbit hole.
-# Here you can edit/summarize the documents before inserting them in memory
-# Should return a list of documents (each is a langchain Document)
 @hook(priority=10)
 def before_rabbithole_stores_documents(docs: List[Document], cat) -> List[Document]:
     cat.working_memory['ccat-dietician']['chunk_count'] = len(docs)
-    
-    #document = session.query(DietDocument).filter_by(hash=hash).first()
 
     with Session(engine) as session:
         try:

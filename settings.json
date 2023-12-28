@@ -1,0 +1,3 @@
+{
+    "sqlite_db_path": "sqlite:///cat/data/dietician.db"
+}
