@@ -8,8 +8,7 @@ from sqlalchemy import ForeignKey, String, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 
 
-# sqlalchemy sqlite engine
-engine = None
+DEFAULT_SQLITE_FILEPATH = 'sqlite:///cat/data/dietician.db'
 
 
 class Base(DeclarativeBase):
@@ -41,10 +40,17 @@ class Chunk(Base):
         return f'Chunk(chunk_count={self.chunk_count!r})'
 
 
+# sqlalchemy sqlite engine
+engine = None
+# Base.metadata.create_all(engine, checkfirst=True)
+# log.warning(f"Dietician is using a sqlite file located here: {DEFAULT_SQLITE_FILEPATH}. You can change the path in the plugin settings.")
+
+
+
 class PluginSettings(BaseModel):
     sqlite_db_path: str = Field(
-        default="sqlite:///cat/data/dietician.db",
-        title="Sqlite filepath. Change it only if you know what you are doing and if so, then always reboot the cat otherwise the old file will be used.",
+        default=DEFAULT_SQLITE_FILEPATH,
+        title="Sqlite filepath. Change it only if you know what you are doing!",
     )
 
 
@@ -54,22 +60,19 @@ def settings_model():
 
 
 @hook(priority=10)
-def after_cat_bootstrap(cat):
-    global engine
-
-    db_filepath = cat.mad_hatter.get_plugin().load_settings()["sqlite_db_path"]
-    log.warning(f"Dietician is using a sqlite file located here: {db_filepath}. You can change the path in the plugin settings, after that remember to reboot the cat!")
-    engine = create_engine(db_filepath)
-    Base.metadata.create_all(engine, checkfirst=True)
-
-
-@hook(priority=10)
 def before_rabbithole_splits_text(doc, cat):
     # doc is a list with only one element, always
     cat.working_memory['ccat-dietician'] = {
         'name': doc[0].metadata['source'],
         'hash': hashlib.sha256(doc[0].page_content.encode()).hexdigest()
     }
+
+    global engine
+    db_filepath = cat.mad_hatter.get_plugin().load_settings()["sqlite_db_path"]
+    engine = create_engine(db_filepath)
+    Base.metadata.create_all(engine, checkfirst=True)
+    log.warning(f"Dietician is writing on the sqlite db located here: {db_filepath}. You can change the path in the plugin settings.")
+
 
     return doc
 
