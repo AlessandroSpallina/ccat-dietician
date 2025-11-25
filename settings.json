@@ -1,3 +1,4 @@
 {
-    "sqlite_db_path": "sqlite:///cat/data/dietician.db"
+    "sqlite_db_path": "sqlite:///cat/data/dietician.db",
+    "delete_db": false
 }
